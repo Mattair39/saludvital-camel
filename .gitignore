@@ -2,15 +2,6 @@
 target/
 *.class
 
-# Archivos ya procesados (subcarpeta interna de input/)
-input/.procesado/
-
-# Carpetas de salida del flujo (no versionar resultados)
-output/
-archive/
-error/
-logs/
-
 # IDEs
 .vscode/
 .idea/

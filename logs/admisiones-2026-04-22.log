@@ -1,0 +1,4 @@
+2026-04-22 20:24:50 | Archivo: pre_registros_bad_header.csv | Valido: false | Motivo: Encabezado invalido: falta columna patient_id
+2026-04-22 20:24:50 | Archivo: pre_registros_invalidos.csv | Valido: false | Motivo: Fila 1: fecha invalida (10/05/2026)
+2026-04-22 20:24:50 | Archivo: pre_registros_mixtos.csv | Valido: false | Motivo: Fila 2: full_name vacio
+2026-04-22 20:24:50 | Archivo: pre_registros_validos.csv | Valido: true | Motivo: N/A
