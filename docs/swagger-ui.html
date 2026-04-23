@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SaludVital – API de Pre-Registros</title>
+  <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css" />
+  <style>
+    body { margin: 0; }
+    #swagger-ui .topbar { background-color: #1a7f4b; }
+    #swagger-ui .topbar .download-url-wrapper { display: none; }
+  </style>
+</head>
+<body>
+  <div id="swagger-ui"></div>
+
+  <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
+  <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-standalone-preset.js"></script>
+  <script>
+    const spec = {
+      "openapi": "3.0.3",
+      "info": {
+        "title": "SaludVital - API de Pre-Registros",
+        "description": "API REST para la gestión de pre-registros de pacientes de la Clínica SaludVital.",
+        "version": "1.0.0"
+      },
+      "servers": [
+        { "url": "https://api.saludvital.ec/v1" }
+      ],
+      "paths": {
+        "/pre-registros": {
+          "post": {
+            "summary": "Crear un nuevo pre-registro",
+            "requestBody": {
+              "required": true,
+              "content": {
+                "application/json": {
+                  "schema": { "$ref": "#/components/schemas/PreRegistroRequest" }
+                }
+              }
+            },
+            "responses": {
+              "201": {
+                "description": "Pre-registro aceptado",
+                "content": {
+                  "application/json": {
+                    "schema": { "$ref": "#/components/schemas/PreRegistroCreado" }
+                  }
+                }
+              },
+              "422": {
+                "description": "Datos inválidos según reglas de negocio",
+                "content": {
+                  "application/json": {
+                    "schema": { "$ref": "#/components/schemas/ErrorValidacion" }
+                  }
+                }
+              },
+              "400": { "description": "Estructura del request inválida" }
+            }
+          },
+          "get": {
+            "summary": "Listar pre-registros",
+            "parameters": [
+              {
+                "name": "fecha",
+                "in": "query",
+                "schema": { "type": "string", "format": "date" },
+                "example": "2026-05-15"
+              },
+              {
+                "name": "estado",
+                "in": "query",
+                "schema": { "type": "string", "enum": ["VALIDO", "INVALIDO"] }
+              }
+            ],
+            "responses": {
+              "200": {
+                "description": "Lista de pre-registros",
+                "content": {
+                  "application/json": {
+                    "schema": { "$ref": "#/components/schemas/ListaPreRegistros" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "/pre-registros/{id}": {
+          "get": {
+            "summary": "Obtener detalle de un pre-registro",
+            "parameters": [
+              {
+                "name": "id",
+                "in": "path",
+                "required": true,
+                "schema": { "type": "string" },
+                "example": "PR-20260515-0042"
+              }
+            ],
+            "responses": {
+              "200": {
+                "description": "Detalle del pre-registro",
+                "content": {
+                  "application/json": {
+                    "schema": { "$ref": "#/components/schemas/PreRegistroDetalle" }
+                  }
+                }
+              },
+              "404": { "description": "No encontrado" }
+            }
+          }
+        },
+        "/pre-registros/{id}/estado": {
+          "get": {
+            "summary": "Consultar estado de un pre-registro",
+            "parameters": [
+              {
+                "name": "id",
+                "in": "path",
+                "required": true,
+                "schema": { "type": "string" }
+              }
+            ],
+            "responses": {
+              "200": {
+                "description": "Estado del pre-registro",
+                "content": {
+                  "application/json": {
+                    "schema": { "$ref": "#/components/schemas/EstadoPreRegistro" }
+                  }
+                }
+              },
+              "404": { "description": "No encontrado" }
+            }
+          }
+        }
+      },
+      "components": {
+        "schemas": {
+          "PreRegistroRequest": {
+            "type": "object",
+            "required": ["patient_id", "full_name", "appointment_date", "insurance_code"],
+            "properties": {
+              "patient_id":       { "type": "string", "example": "P-1001" },
+              "full_name":        { "type": "string", "example": "Ana Torres" },
+              "appointment_date": { "type": "string", "format": "date", "example": "2026-05-15" },
+              "insurance_code":   { "type": "string", "enum": ["IESS", "PRIVADO", "NINGUNO"], "example": "IESS" }
+            }
+          },
+          "PreRegistroCreado": {
+            "type": "object",
+            "properties": {
+              "id":      { "type": "string", "example": "PR-20260515-0042" },
+              "status":  { "type": "string", "example": "VALIDO" },
+              "message": { "type": "string", "example": "Pre-registro aceptado correctamente" }
+            }
+          },
+          "PreRegistroDetalle": {
+            "type": "object",
+            "properties": {
+              "id":               { "type": "string", "example": "PR-20260515-0042" },
+              "patient_id":       { "type": "string", "example": "P-1001" },
+              "full_name":        { "type": "string", "example": "Ana Torres" },
+              "appointment_date": { "type": "string", "example": "2026-05-15" },
+              "insurance_code":   { "type": "string", "example": "IESS" },
+              "status":           { "type": "string", "enum": ["VALIDO", "INVALIDO"], "example": "VALIDO" },
+              "created_at":       { "type": "string", "format": "date-time", "example": "2026-05-15T10:24:50Z" },
+              "rejection_reason": { "type": "string", "nullable": true, "example": null }
+            }
+          },
+          "ListaPreRegistros": {
+            "type": "object",
+            "properties": {
+              "total": { "type": "integer", "example": 2 },
+              "data":  { "type": "array", "items": { "$ref": "#/components/schemas/PreRegistroDetalle" } }
+            }
+          },
+          "EstadoPreRegistro": {
+            "type": "object",
+            "properties": {
+              "id":               { "type": "string", "example": "PR-20260515-0042" },
+              "status":           { "type": "string", "enum": ["VALIDO", "INVALIDO"], "example": "VALIDO" },
+              "rejection_reason": { "type": "string", "nullable": true, "example": null }
+            }
+          },
+          "ErrorValidacion": {
+            "type": "object",
+            "properties": {
+              "status": { "type": "string", "example": "INVALIDO" },
+              "error":  { "type": "string", "example": "appointment_date no cumple el formato YYYY-MM-DD" }
+            }
+          }
+        }
+      }
+    };
+
+    SwaggerUIBundle({
+      spec,
+      dom_id: '#swagger-ui',
+      presets: [SwaggerUIBundle.presets.apis, SwaggerUIStandalonePreset],
+      layout: 'StandaloneLayout',
+      deepLinking: true,
+      defaultModelsExpandDepth: 2,
+      defaultModelExpandDepth: 2
+    });
+  </script>
+</body>
+</html>
